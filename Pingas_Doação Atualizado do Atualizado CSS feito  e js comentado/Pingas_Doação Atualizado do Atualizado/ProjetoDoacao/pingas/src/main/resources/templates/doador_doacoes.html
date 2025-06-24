@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title class="titulos">Minhas Doações Pendentes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="pagina-doador-doacoes">
+  <header class="header">
+  <img src="logo.png" alt="Logo" class="logo">
+  <span class="nome-site">Pingas contra a Fome</span>
+</header>
+  <div class="container">
+    <h2 class="titulos">Minhas Doações Pendentes</h2>
+    <div id="doacoesContainer">
+      <p>Carregando doações...</p>
+    </div>
+    <button class="botao-secundario" onclick="location.href='/doador'">Voltar</button>
+  </div>
+
+  <script>
+    async function carregarDoacoesPendentes() {
+      try {
+        const response = await fetch('/doacoes/doador/pendentes');
+        if (!response.ok) {
+          throw new Error('Não foi possível carregar as doações.');
+        }
+
+        const doacoes = await response.json();
+        const container = document.getElementById('doacoesContainer');
+        container.innerHTML = '';
+
+        if (doacoes.length === 0) {
+          container.innerHTML = '<p>Você não possui doações pendentes.</p>';
+        } else {
+          doacoes.forEach(doacao => {
+            const div = document.createElement('div');
+            div.className = 'doacao';
+
+            div.innerHTML = `
+              <p><strong>Descrição:</strong> ${doacao.descricao}</p>
+              <p><strong>ONG:</strong> ${doacao.nomeOng}</p>
+              <p><strong>Status:</strong> ${doacao.status}</p>
+              <p><strong>Data:</strong> ${new Date(doacao.data).toLocaleString('pt-BR')}</p>
+              <hr/>
+            `;
+
+            container.appendChild(div);
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao carregar doações:', error);
+        document.getElementById('doacoesContainer').innerHTML = '<p>Erro ao carregar doações.</p>';
+      }
+    }
+
+    carregarDoacoesPendentes();
+  </script>
+</body>
+</html>

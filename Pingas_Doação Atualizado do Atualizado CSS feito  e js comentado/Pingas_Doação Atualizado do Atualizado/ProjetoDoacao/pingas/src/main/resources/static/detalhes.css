@@ -1,0 +1,94 @@
+body {
+  font-family: sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  text-align: center;
+}
+
+#map {
+  width: 100%;
+  max-width: 600px;
+  height: 400px;
+  margin: 20px auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#formDoacao {
+  display: none;
+  margin-top: 20px;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#formDoacao label {
+  display: block;
+  margin: 8px 0 4px;
+  font-weight: bold;
+}
+
+#formDoacao input,
+#formDoacao textarea {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+/* Botões já têm estilo global em style.css, mas personalizamos aqui se necessário */
+#formDoacao button {
+  width: 100%;
+  margin-top: 12px;
+  height: 50px;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  background-color: #0056b3;
+  color: white;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  display: block;
+  transition: background-color 0.2s;
+}
+
+/* Botões lado a lado, como confirmar/cancelar */
+.botoes-lado-a-lado {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-left: 28%;
+  margin-right: 28%;
+}
+
+.botoes-lado-a-lado button {
+  flex: 1;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  background-color: #0056b3;
+  color: white;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  display: center;
+  transition: background-color 0.2s;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+  #map {
+    width: 100%;
+    height: 300px;
+  }
+
+  .botoes-lado-a-lado {
+    flex-direction: column;
+  }
+}

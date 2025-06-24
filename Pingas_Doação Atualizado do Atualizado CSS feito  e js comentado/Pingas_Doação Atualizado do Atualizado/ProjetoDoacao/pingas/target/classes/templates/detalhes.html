@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Detalhes da ONG</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="detalhes.css" />
+</head>
+<body>
+  <h2 id="nomeOng">Nome da ONG</h2>
+  <p id="enderecoOng">Endereço da ONG</p>
+  <div id="map"></div>
+<div class="botoes-lado-a-lado">
+ <button id="btnAbrirForm">Fazer Doação</button>
+  <button onclick="history.back()" id="btn_voltar">Voltar</button>
+</div>
+
+ 
+
+  <!-- Formulário de Doação -->
+  <form id="formDoacao" onsubmit="enviarFormulario(event)">
+    <input type="hidden" name="idOng" id="idOng" value="" />
+
+    <label for="login">CPF (login):</label>
+    <input type="text" id="login" name="login" readonly />
+
+    <label for="descricao">Descrição:</label>
+    <textarea name="descricao" id="descricao" required></textarea>
+
+    <div class="botoes-lado-a-lado">
+    <button type="submit">Enviar Doação</button>
+    <button type="button" id="btnCancelarForm">Cancelar</button></div>
+  </form>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script th:inline="none">
+    const ORS_API_KEY = "5b3ce3597851110001cf624876bf06aad1184f1ba6421f14d59c6b32";
+
+    let idOngGlobal = null;
+    let loginUsuarioLogado = null;
+
+    // Pega parâmetros da URL
+    function getQueryParams() {
+      const params = {};
+      const queryString = window.location.search.substring(1);
+      const pairs = queryString.split("&");
+      for (const pair of pairs) {
+        const [key, value] = pair.split("=");
+        if (key) {
+          params[decodeURIComponent(key)] = decodeURIComponent(value || "");
+        }
+      }
+      return params;
+    }
+
+    // Busca dados do usuário logado via API
+    async function carregarUsuarioLogado() {
+      try {
+        const res = await fetch('/auth/me', { credentials: 'include' });
+        if (!res.ok) throw new Error("Usuário não autenticado");
+        const usuario = await res.json();
+        loginUsuarioLogado = usuario.login;
+        document.getElementById('login').value = loginUsuarioLogado;
+      } catch (err) {
+        alert("Erro ao obter usuário logado. Faça login e tente novamente.");
+        console.error(err);
+      }
+    }
+
+    // Geocodifica endereço usando OpenRouteService
+    async function geocode(endereco) {
+      const url = `https://api.openrouteservice.org/geocode/search?api_key=${ORS_API_KEY}&text=${encodeURIComponent(endereco)}&boundary.country=BR`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!data.features || data.features.length === 0) throw new Error("Endereço não encontrado");
+      return data.features[0].geometry.coordinates.reverse(); // [lat, lng]
+    }
+
+    // Exibe mapa com rota entre doador e ONG
+    async function mostrarMapa(enderecoOng) {
+      try {
+        const res = await fetch("/auth/me", { credentials: 'include' });
+        if (!res.ok) throw new Error("Não foi possível obter o usuário logado");
+        const doador = await res.json();
+
+        const enderecoDoador = `${doador.endereco}, ${doador.cep}`;
+        const [latOng, lonOng] = await geocode(enderecoOng);
+        const [latDoador, lonDoador] = await geocode(enderecoDoador);
+
+        const map = L.map("map").setView([latOng, lonOng], 13);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(map);
+
+        L.marker([latOng, lonOng]).addTo(map).bindPopup("ONG").openPopup();
+        L.marker([latDoador, lonDoador]).addTo(map).bindPopup("Você");
+
+        // Traçar rota
+        const rotaRes = await fetch("https://api.openrouteservice.org/v2/directions/driving-car/geojson", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": ORS_API_KEY
+          },
+          body: JSON.stringify({
+            coordinates: [[lonDoador, latDoador], [lonOng, latOng]]
+          })
+        });
+
+        const rotaData = await rotaRes.json();
+        const coords = rotaData.features[0].geometry.coordinates.map(c => [c[1], c[0]]);
+        const polyline = L.polyline(coords, { color: "blue" }).addTo(map);
+        map.fitBounds(polyline.getBounds());
+
+      } catch (err) {
+        
+      }
+    }
+
+    async function initPage() {
+  const params = getQueryParams();
+  const idOng = params.idOng;
+
+  if (!idOng) {
+    alert("ONG não especificada");
+    return;
+  }
+
+  try {
+    // Busca os dados da ONG no backend via API
+    const res = await fetch(`/ongs/${idOng}`, { credentials: 'include' });
+    if (!res.ok) throw new Error("ONG não encontrada");
+    const ong = await res.json();
+
+    // Preenche os dados na página
+    document.getElementById("nomeOng").textContent = ong.nome;
+    document.getElementById("enderecoOng").textContent = ong.endereco;
+    document.getElementById("idOng").value = ong.id;
+
+    await carregarUsuarioLogado();
+    await mostrarMapa(ong.endereco);
+
+  } catch (err) {
+    alert("Erro ao carregar dados da ONG: " + err.message);
+  }
+}
+
+
+    // Botão abrir formulário doação
+    document.getElementById("btnAbrirForm").addEventListener("click", () => {
+      // Esconde detalhes da ONG e mapa, mostra formulário
+      document.getElementById("nomeOng").style.display = "none";
+      document.getElementById("enderecoOng").style.display = "none";
+      document.getElementById("map").style.display = "none";
+      document.getElementById("btnAbrirForm").style.display = "none";
+      document.getElementById("btn_voltar").style.display = "none";
+      document.getElementById("formDoacao").style.display = "block";
+    });
+
+    // Botão cancelar formulário doação
+    document.getElementById("btnCancelarForm").addEventListener("click", () => {
+      document.getElementById("formDoacao").style.display = "none";
+      document.getElementById("nomeOng").style.display = "block";
+      document.getElementById("enderecoOng").style.display = "block";
+      document.getElementById("map").style.display = "block";
+      document.getElementById("btn_voltar").style.display = "block";
+      document.getElementById("btnAbrirForm").style.display = "inline-block";
+    });
+
+    // Enviar formulário doação
+    async function enviarFormulario(event) {
+      event.preventDefault();
+
+      const descricao = document.getElementById("descricao").value.trim();
+      const idOng = document.getElementById("idOng").value;
+      const login = document.getElementById("login").value;
+
+      if (!descricao || !idOng || !login) {
+        alert("Todos os campos são obrigatórios.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/doacoes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            descricao: descricao,
+            loginDoador: login,
+            idOng: Number(idOng)
+          })
+        });
+        if (res.ok) {
+          alert("Doação cadastrada com sucesso!");
+          window.location.reload();
+        } else {
+          const textoErro = await res.text();
+          alert("Erro ao enviar doação: " + textoErro);
+        }
+      } catch (err) {
+        alert("Erro ao enviar doação: " + err.message);
+      }
+    }
+
+    window.onload = initPage;
+  </script>
+</body>
+</html>

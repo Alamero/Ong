@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="header">
+  <img src="logo.png" alt="Logo" class="logo">
+  <span class="nome-site">Pingas contra a Fome</span>
+</header>
+
+  <div class="container">
+    <h2 class="titulos">LOGIN</h2>
+
+    <form id="loginForm">
+      <input type="text" id="login-user" placeholder="Usuário (CPF/CNPJ)" required />
+      <input type="password" id="login-pass" placeholder="Senha" required />
+      <button type="submit">Acessar</button>
+    </form>
+
+    <button onclick="window.location.href='/cadastro'">Cadastro</button>
+
+    <div id="login-error" style="color:red; margin-top:10px;"></div>
+  </div>
+
+  <script src="/auth.js"></script>
+</body>
+</html>

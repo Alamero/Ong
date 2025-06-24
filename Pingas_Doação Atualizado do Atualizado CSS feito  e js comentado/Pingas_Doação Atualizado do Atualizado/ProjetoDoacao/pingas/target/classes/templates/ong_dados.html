@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minha ONG</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="header">
+  <img src="logo.png" alt="Logo" class="logo">
+  <span class="nome-site">Pingas contra a Fome</span>
+</header>
+  <div class="container">
+    <h2 class="titulos">Minha ONG</h2>
+
+    <form id="form-ong" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="cep">CEP:</label>
+        <input type="text" id="cep" name="cep" required />
+      </div>
+
+      <div class="form-group">
+        <label for="numero">Número:</label>
+        <input type="text" id="numero" name="numero" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="endereco">Endereço:</label>
+        <input type="text" id="endereco" name="endereco" readonly required />
+      </div>
+
+      <div class="form-group">
+        <label for="imagem">Imagem:</label>
+        <input type="file" id="imagem" name="imagem" accept="image/*" />
+        <img id="preview" class="preview" src="#" alt="Pré-visualização" style="display:none;" />
+      </div>
+
+      <button type="submit" class="botao-primario">Salvar</button>
+    </form>
+
+    <button class="botao-secundario" onclick="location.href='/ong'">Voltar</button>
+  </div>
+
+  <script src="/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Validar Doações</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="pagina-ong-validar">
+  <header class="header">
+  <img src="logo.png" alt="Logo" class="logo">
+  <span class="nome-site">Pingas contra a Fome</span>
+</header>
+  <div class="container">
+    
+    <h2 class="titulos">Doações Pendentes</h2>
+    <div id="doacoes-container">
+      <!-- Doações serão inseridas aqui -->
+    </div>
+    <button class="botao-secundario" onclick="location.href='/ong'">Voltar</button>
+  </div>
+
+  <div id="modal-recusa" class="modal">
+    <div class="modal-content">
+      <h3>Motivo da recusa</h3>
+      <textarea id="motivo-recusa-text" rows="4" style="width: 100%;"></textarea>
+      <div style="margin-top: 10px; text-align: right;">
+        <button onclick="confirmarRecusa()">Confirmar</button>
+        <button onclick="fecharModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/auth.js"></script>
+</body>
+</html>
